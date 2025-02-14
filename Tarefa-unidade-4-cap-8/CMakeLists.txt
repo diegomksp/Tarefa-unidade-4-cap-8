@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(Tarefa-unidade-4-cap-8 Tarefa-unidade-4-cap-8.c )
+add_executable(Tarefa-unidade-4-cap-8 Tarefa-unidade-4-cap-8.c inc/ssd1306.c)
 
 pico_set_program_name(Tarefa-unidade-4-cap-8 "Tarefa-unidade-4-cap-8")
 pico_set_program_version(Tarefa-unidade-4-cap-8 "0.1")
@@ -46,6 +46,9 @@ pico_enable_stdio_usb(Tarefa-unidade-4-cap-8 1)
 
 # Add the standard library to the build
 target_link_libraries(Tarefa-unidade-4-cap-8
+        hardware_pwm
+        hardware_adc
+        hardware_i2c
         pico_stdlib)
 
 # Add the standard include files to the build
