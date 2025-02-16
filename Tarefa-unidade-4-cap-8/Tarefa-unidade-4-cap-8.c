@@ -10,15 +10,8 @@
 #define I2C_SCL 15
 #define endereco 0x3C // EndereÃ§o do display SSD1306
 
-const int VRX = 26;
-const int VRY = 27;
-const int ADC_CHANNEL_0 = 0;
-const int ADC_CHANNEL_1 = 1;
-const int SW = 22;
-const int LED_R = 13;
-const int LED_G = 12;
-const int LED_B = 11;
-const float DIVIDER_PWM = 488.0;
+const int VRX = 26, VRY = 27, ADC_CHANNEL_0 = 0, ADC_CHANNEL_1 = 1, SW = 22, LED_R = 13, LED_G = 11, LED_B = 12;
+const float DIVIDER_PWM = 40.0;
 const uint16_t PERIOD = 500;
 uint slice_LED_R, slice_LED_G, slice_LED_B;
 ssd1306_t ssd;
@@ -37,9 +30,11 @@ int main()
     
     while (1)
     {
+        int pwm_value_x=abs(VRX_value*PERIOD/4095);
+        int pwm_value_y=abs(VRY_value*PERIOD/4095);
         joystick_read(&VRX_value, &VRY_value);
-        pwm_set_gpio_level(LED_R, abs(VRX_value-1918)>50||abs(VRX_value)<50 ? VRX_value:0);
-        pwm_set_gpio_level(LED_B, abs(VRY_value-2187)>50||abs(VRY_value)<50 ? VRY_value:0);
+        pwm_set_gpio_level(LED_R, abs(pwm_value_x-250)>30||abs(pwm_value_x)<25 ? pwm_value_x:0);
+        pwm_set_gpio_level(LED_B, abs(pwm_value_y-250)>30||abs(pwm_value_y)<25 ? pwm_value_y:0);
         
         // Mapeando valores do ADC (0-4095) para resolução da tela (x: 0-127, y: 0-63)
         int x = abs((VRX_value * 119) / 4095);
@@ -86,11 +81,11 @@ void joystick_read(uint16_t *VRX_value, uint16_t *VRY_value)
 {
     adc_select_input(ADC_CHANNEL_0);
     sleep_ms(2);
-    *VRY_value = adc_read();  // Lê VRX corretamente
+    *VRY_value = adc_read();  // Lê VRY corretamente
 
     adc_select_input(ADC_CHANNEL_1);
     sleep_ms(2);
-    *VRX_value = adc_read();  // Lê VRY corretamente
+    *VRX_value = adc_read();  // Lê VRX corretamente
 }
 
 
