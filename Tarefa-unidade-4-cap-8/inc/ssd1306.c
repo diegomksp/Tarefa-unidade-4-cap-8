@@ -200,3 +200,9 @@ void ssd1306_draw_string(ssd1306_t *ssd, const char *str, uint8_t x, uint8_t y)
     }
   }
 }
+
+void ssd1306_square(ssd1306_t *ssd, uint8_t x, uint8_t y, uint8_t size, bool value) {
+  for (uint8_t i = 0; i < size; i++) {
+      ssd1306_vline(ssd, x + i, y, y + size - 1, value);
+  }
+}
