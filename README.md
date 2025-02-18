@@ -26,7 +26,6 @@ Este projeto implementa um sistema de controle utilizando um Raspberry Pi Pico, 
 | LED Verde | GP11 |
 | LED Azul (PWM) | GP12 |
 | Botão A | GP5 |
-| Botão B | GP6 |
 | Display OLED SDA | GP14 |
 | Display OLED SCL | GP15 |
 
