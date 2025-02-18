@@ -8,21 +8,29 @@
 #define I2C_PORT i2c1
 #define I2C_SDA 14
 #define I2C_SCL 15
-#define endereco 0x3C // EndereÃ§o do display SSD1306
+#define endereco 0x3C // Endereço do display SSD1306
 
+// Variáveis para controle de tempo e estados
 static volatile uint32_t last_time = 0;
 static volatile uint32_t last_time1 = 0;
 static volatile uint32_t last_time2 = 0;
 static volatile uint8_t contador = 0;
 
+// Estados de LEDs e PWM
 bool Led_G_ON = false, led_pwm = true;
+
+// Definições de pinos e constantes para o joystick, botões e LEDs
 const int VRX = 26, VRY = 27, ADC_CHANNEL_0 = 0, ADC_CHANNEL_1 = 1, SW = 22, LED_R = 13, LED_G = 11, LED_B = 12, Button22 = 22, ButtonA = 5, ButtonB = 6;
 const float DIVIDER_PWM = 40.0;
 const uint16_t PERIOD = 500;
+
+// Variáveis para controle do PWM dos LEDs
 uint slice_LED_R, slice_LED_G, slice_LED_B;
+
+// Estrutura para o display OLED
 ssd1306_t ssd;
 
-
+// Declaração das funções
 void setup_joystick();
 void setup_PWM(uint led, uint *slice, uint16_t level);
 void setup();
@@ -32,28 +40,41 @@ void button_callback(uint gpio, uint32_t events);
 
 int main()
 {
-    setup();
-    setup_i2c();
+    setup(); // Configuração inicial do sistema
+    setup_i2c(); // Configuração do barramento I2C
+
+    // Variáveis para armazenar leituras do joystick
     uint16_t VRX_value, VRY_value, SW_value;
+
+    // Configuração das interrupções para os botões
     gpio_set_irq_enabled_with_callback(ButtonA, GPIO_IRQ_EDGE_FALL, true, &button_callback);
     gpio_set_irq_enabled_with_callback(ButtonB, GPIO_IRQ_EDGE_FALL, true, &button_callback);
     gpio_set_irq_enabled_with_callback(Button22, GPIO_IRQ_EDGE_FALL, true, &button_callback);
     
     while (1)
     {
+        // Converte os valores do joystick para PWM
         int pwm_value_x=abs(VRX_value*PERIOD/4095);
         int pwm_value_y=abs(VRY_value*PERIOD/4095);
+
+        // Lê os valores do joystick
         joystick_read(&VRX_value, &VRY_value);
         
+        // Atualiza LEDs com valores PWM dependendo da posição do joystick
         if(led_pwm){
         pwm_set_gpio_level(LED_R, abs(pwm_value_x-250)>30||abs(pwm_value_x)<25 ? pwm_value_x:0);
         pwm_set_gpio_level(LED_B, abs(pwm_value_y-250)>30||abs(pwm_value_y)<25 ? pwm_value_y:0);
         }
+
         // Mapeando valores do ADC (0-4095) para resolução da tela (x: 0-127, y: 0-63)
         int x = abs((VRX_value * 119) / 4095);
         int y = abs((VRY_value * 54) / 4095);
+        
+        // Atualiza a tela OLED
         ssd1306_fill(&ssd,0);
         ssd1306_square(&ssd,x,y,8,1);
+
+        // Desenha diferentes molduras na tela dependendo do contador
         switch (contador){
             case 1:ssd1306_rect(&ssd,1,1,125,60,1,0); break;
             case 2:
@@ -70,10 +91,11 @@ int main()
             break;
             default:ssd1306_rect(&ssd,0,0,127,64,0,0); break;
         }
+
+        // Envia os dados atualizados para o display
         ssd1306_send_data(&ssd);
-        
-        
-        sleep_ms(10);
+    
+        sleep_ms(10); //delay para evitar alto consumo da CPU
     }
 }
 
@@ -110,7 +132,7 @@ void setup()
     gpio_set_dir(LED_G,GPIO_OUT);
     gpio_init(Button22);
     gpio_init(ButtonA);
-    
+
     gpio_set_dir(Button22,GPIO_IN);
     gpio_set_dir(ButtonA,GPIO_IN);
 
@@ -151,10 +173,7 @@ void button_callback(uint gpio, uint32_t events){
         last_time=tempo_atual;
         led_pwm=!led_pwm;
     }
-    if(gpio == ButtonB && tempo_atual - last_time1 > 200000){
-        last_time1=tempo_atual;
-        
-    }
+  
     if(gpio == Button22 && tempo_atual - last_time2 > 200000){
         last_time2=tempo_atual;
         Led_G_ON=!Led_G_ON;
