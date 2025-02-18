@@ -51,5 +51,5 @@ Além disso, o projeto faz uso das seguintes bibliotecas:
 3. Pressionar os botões alterará os modos de exibição e a iluminação dos LEDs.
 
 ## Demonstração
-Desenvolvido para experimentação e aprendizado com o Raspberry Pi Pico.
+https://youtube.com/shorts/AdgpySh1N0I?si=rXO39NcNOD1RIOQj
 
